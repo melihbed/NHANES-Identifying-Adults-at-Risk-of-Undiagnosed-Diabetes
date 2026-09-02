@@ -1,0 +1,116 @@
+{
+  "cohort_rows": 4698,
+  "train_rows": 3758,
+  "test_rows": 940,
+  "train_positives": 93,
+  "test_positives": 23,
+  "unweighted_prevalence": 0.024691358024691357,
+  "weighted_prevalence": 0.020263778820087952,
+  "features": [
+    "RIDAGEYR",
+    "INDFMPIR",
+    "BMXWAIST",
+    "RIAGENDR",
+    "RIDRETH3",
+    "DMDEDUC2"
+  ],
+  "logreg_params": {
+    "C": "0.1",
+    "class_weight": "balanced",
+    "solver": "liblinear",
+    "max_iter": "2000",
+    "random_state": "42"
+  },
+  "operating_points": [
+    {
+      "recall_target": 0.7,
+      "threshold": 0.02926,
+      "flagged_rate": 0.26344,
+      "precision": 0.06667,
+      "recall": 0.70968,
+      "specificity": 0.74789,
+      "balanced_accuracy": 0.72878,
+      "tp": 66,
+      "fp": 924,
+      "fn": 27,
+      "tn": 2741
+    },
+    {
+      "recall_target": 0.8,
+      "threshold": 0.0235,
+      "flagged_rate": 0.35019,
+      "precision": 0.05699,
+      "recall": 0.80645,
+      "specificity": 0.66139,
+      "balanced_accuracy": 0.73392,
+      "tp": 75,
+      "fp": 1241,
+      "fn": 18,
+      "tn": 2424
+    },
+    {
+      "recall_target": 0.9,
+      "threshold": 0.02072,
+      "flagged_rate": 0.39941,
+      "precision": 0.05596,
+      "recall": 0.90323,
+      "specificity": 0.61337,
+      "balanced_accuracy": 0.7583,
+      "tp": 84,
+      "fp": 1417,
+      "fn": 9,
+      "tn": 2248
+    }
+  ],
+  "selected_threshold": 0.02349640820509209,
+  "test_metrics": {
+    "threshold": 0.0235,
+    "flagged_rate": 0.32553,
+    "precision": 0.0719,
+    "recall": 0.95652,
+    "specificity": 0.69029,
+    "balanced_accuracy": 0.82341,
+    "tp": 22,
+    "fp": 284,
+    "fn": 1,
+    "tn": 633,
+    "accuracy": 0.69681,
+    "f1": 0.13374,
+    "roc_auc": 0.84391,
+    "pr_auc": 0.07401,
+    "brier_score": 0.02357,
+    "no_skill_pr_auc": 0.02447
+  },
+  "top_odds_ratios": [
+    {
+      "feature": "BMXWAIST",
+      "coefficient": 1.0536,
+      "odds_ratio": 2.8679
+    },
+    {
+      "feature": "RIDAGEYR",
+      "coefficient": 0.7562,
+      "odds_ratio": 2.1301
+    },
+    {
+      "feature": "DMDEDUC2_2.0",
+      "coefficient": 0.6875,
+      "odds_ratio": 1.9887
+    },
+    {
+      "feature": "RIDRETH3_4.0",
+      "coefficient": 0.6629,
+      "odds_ratio": 1.9405
+    },
+    {
+      "feature": "RIDRETH3_6.0",
+      "coefficient": 0.1881,
+      "odds_ratio": 1.207
+    },
+    {
+      "feature": "RIAGENDR_2.0",
+      "coefficient": 0.0021,
+      "odds_ratio": 1.0021
+    }
+  ]
+}
