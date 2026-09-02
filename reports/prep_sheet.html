@@ -1,0 +1,348 @@
+<title>Interview Prep Sheet</title>
+<meta name="description" content="Presenter cheat sheet for walking a Director of Data Science through the NHANES undiagnosed-diabetes screening project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --ground: #f4f6f6;
+  --surface: #fdfefe;
+  --surface-2: #eef2f2;
+  --ink: #172226;
+  --ink-muted: #566268;
+  --hairline: #d7dede;
+  --accent: #0a8f88;
+  --accent-deep: #0a5f5b;
+  --risk: #c2410c;
+  --risk-soft: #f4e6dd;
+  --shadow: 0 1px 2px rgba(20,40,44,.04), 0 6px 22px rgba(20,40,44,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0d1415;
+    --surface: #161f20;
+    --surface-2: #1e2829;
+    --ink: #e6ecec;
+    --ink-muted: #93a3a4;
+    --hairline: #2b3838;
+    --accent: #3bb0a8;
+    --accent-deep: #7fd0c9;
+    --risk: #e2683b;
+    --risk-soft: #33241d;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0d1415;
+  --surface: #161f20;
+  --surface-2: #1e2829;
+  --ink: #e6ecec;
+  --ink-muted: #93a3a4;
+  --hairline: #2b3838;
+  --accent: #3bb0a8;
+  --accent-deep: #7fd0c9;
+  --risk: #e2683b;
+  --risk-soft: #33241d;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 48px max(20px, 5vw) 80px; }
+
+header { border-bottom: 2px solid var(--accent); padding-bottom: 22px; margin-bottom: 34px; }
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 10px;
+}
+h1 {
+  font-family: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.1;
+  margin: 0 0 12px; letter-spacing: -0.015em; text-wrap: balance;
+}
+.pitch {
+  font-size: 1.04rem; color: var(--ink); max-width: 68ch;
+  border-left: 3px solid var(--accent); padding-left: 16px; margin: 16px 0 0;
+}
+.pitch b { font-family: "Libre Franklin", sans-serif; }
+
+h2 {
+  font-family: "Libre Franklin", sans-serif; font-weight: 700;
+  font-size: 1.28rem; margin: 40px 0 16px; letter-spacing: -0.01em;
+  display: flex; align-items: baseline; gap: 12px;
+}
+h2 .num {
+  font-family: "IBM Plex Mono", monospace; font-size: .78rem; font-weight: 600;
+  color: var(--accent); border: 1px solid var(--accent); border-radius: 5px;
+  padding: 2px 7px; letter-spacing: .05em; flex: none;
+}
+h3 { font-family: "Libre Franklin", sans-serif; font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent-deep); }
+p { margin: 0 0 12px; max-width: 70ch; }
+strong { font-weight: 600; }
+.mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+em { font-style: italic; color: var(--accent-deep); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+
+.talk { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+.talk li {
+  position: relative; padding: 12px 0 12px 52px; border-bottom: 1px solid var(--hairline);
+  max-width: 74ch;
+}
+.talk li:last-child { border-bottom: 0; }
+.talk li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 12px;
+  font-family: "IBM Plex Mono", monospace; font-size: .8rem; font-weight: 600;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--surface-2); color: var(--accent-deep);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--hairline);
+}
+.talk li b { font-family: "Libre Franklin", sans-serif; font-weight: 600; }
+.talk .time {
+  font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-muted);
+  text-transform: uppercase; letter-spacing: .06em; margin-left: 8px;
+}
+
+table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 4px 0 8px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+th {
+  font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--ink-muted); font-weight: 500;
+}
+td.n { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:first-child { font-weight: 500; }
+
+.qa { margin-bottom: 12px; }
+.qa .q {
+  font-family: "Libre Franklin", sans-serif; font-weight: 600; color: var(--ink);
+  margin: 0 0 4px; display: flex; gap: 8px;
+}
+.qa .q::before { content: "Q"; font-family: "IBM Plex Mono", monospace; color: var(--risk); flex: none; }
+.qa .a { margin: 0 0 0 18px; color: var(--ink-muted); max-width: 72ch; }
+.qa .a::before { content: "→ "; color: var(--accent); font-family: "IBM Plex Mono", monospace; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+.chip {
+  display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+  letter-spacing: .05em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+  background: var(--surface-2); border: 1px solid var(--hairline); color: var(--ink-muted);
+  margin: 2px 4px 2px 0;
+}
+
+.warn {
+  background: var(--risk-soft); border: 1px solid color-mix(in srgb, var(--risk) 35%, var(--hairline));
+  border-radius: 10px; padding: 16px 20px; margin: 14px 0;
+}
+.warn h3 { color: var(--risk); margin-top: 0; }
+
+ul.tight { margin: 4px 0 12px; padding-left: 20px; }
+ul.tight li { margin-bottom: 5px; max-width: 72ch; }
+
+.foot {
+  margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--hairline);
+  font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-muted);
+  letter-spacing: .04em; display: flex; flex-wrap: wrap; gap: 6px 20px;
+}
+a { color: var(--accent-deep); }
+
+@media print {
+  body { background: #fff; color: #000; font-size: 10.5pt; }
+  .wrap { padding: 0; max-width: none; }
+  .card, .warn { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  .talk li, .qa, tr { break-inside: avoid; }
+  header { border-color: #000; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Presenter prep sheet · for Melih</p>
+    <h1>Undiagnosed Diabetes Screening — interview walkthrough</h1>
+    <p class="pitch"><b>30-second pitch:</b> "Using public NHANES survey data, I built a calibrated
+    model that ranks adults who've never been diagnosed with diabetes by their probability of
+    already having a diabetes-range HbA1c. As a triage filter it flags the highest-risk third of
+    adults and catches <b>22 of 23</b> undiagnosed cases in the held-out test — a proof of concept
+    for deciding whom to send for a confirmatory lab test, packaged so it re-runs with one command."</p>
+  </header>
+
+  <h2><span class="num">01</span> Talk track — ~10–12 min</h2>
+  <ol class="talk">
+    <li><b>The problem</b> <span class="time">~1 min</span><br>
+      ~1 in 5 people with diabetes are undiagnosed; damage accumulates silently. A cheap
+      confirmatory test (HbA1c) exists — the real question is <em>whom to test</em>. That's a
+      data-science problem.</li>
+    <li><b>Question &amp; data</b> <span class="time">~1 min</span><br>
+      NHANES Aug 2021–23. Four modules linked on the respondent id: demographics, the
+      prior-diagnosis question, HbA1c, body measurements.</li>
+    <li><b>Cohort</b> <span class="time">~1.5 min</span><br>
+      11,933 → 4,698: adults 20+, self-reported no prior diagnosis, HbA1c measured, not pregnant.
+      Call out the <em>20-not-18</em> decision (education variable) and the <em>HbA1c-only</em>
+      outcome scope (weighted 2.0% vs CDC 4.5%).</li>
+    <li><b>The core challenge</b> <span class="time">~1 min</span><br>
+      2.5% positive. "Predict everyone negative" = 97.5% accuracy and useless. So: PR-AUC,
+      recall, calibration — never accuracy. Class weights, not resampling.</li>
+    <li><b>EDA</b> <span class="time">~1.5 min</span><br>
+      Risk climbs with waist, age, disadvantage. Waist ≥110 cm carries 16× the rate of &lt;90 cm.
+      Sex: no association. BMI–waist ρ = 0.89.</li>
+    <li><b>Modeling decisions</b> <span class="time">~2.5 min</span><br>
+      Drop BMI keep waist (collinearity → sign flip). Logistic beats RF/HistGB (trees collapse to
+      the majority class on 93 positives) <em>and</em> gives odds ratios. Tuning surface flat →
+      parsimony rule.</li>
+    <li><b>Calibration + threshold</b> <span class="time">~1.5 min</span><br>
+      Platt scaling → Brier 0.024. Threshold picked on <em>training out-of-fold</em> scores for
+      80% recall; test set scored exactly once.</li>
+    <li><b>Results</b> <span class="time">~1.5 min</span><br>
+      Held-out: recall 0.96 (22/23), specificity 0.69, ROC-AUC 0.84, PR-AUC ≈ 3× no-skill.
+      Frame as triage: 13 false alarms per true case, each resolved by a lab test.</li>
+    <li><b>Honesty</b> <span class="time">~1 min</span><br>
+      23 test positives → wide interval. Observational. Demographic features need an equity review.
+      "Proof of concept with an honest error bar, not a device."</li>
+    <li><b>Engineering + next</b> <span class="time">~1 min</span><br>
+      <span class="mono">make all</span>, 11 tests, packaged <span class="mono">src/</span>,
+      model card, BI extract pack. Next: v2 features (BP/smoking/activity), external validation
+      on 2017–20, decision-curve analysis.</li>
+  </ol>
+
+  <h2><span class="num">02</span> Numbers to know cold</h2>
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Value</th><th>Note</th></tr>
+      <tr><td>Cohort size</td><td class="n">4,698</td><td>from 11,933 linked participants</td></tr>
+      <tr><td>Positives</td><td class="n">116 (2.47%)</td><td>weighted 2.0% · CDC combined 4.5%</td></tr>
+      <tr><td>Train / test</td><td class="n">3,758 / 940</td><td>stratified 80/20, seed 42 · 93 / 23 positives</td></tr>
+      <tr><td>Model</td><td class="n">Calibrated LR</td><td>Platt/sigmoid over class-weighted logistic; 6 features</td></tr>
+      <tr><td>Operating threshold</td><td class="n">0.0235</td><td>≥ 80% recall on training out-of-fold</td></tr>
+      <tr><td>Test recall</td><td class="n">0.957</td><td>22 of 23 — 1 missed</td></tr>
+      <tr><td>Test specificity</td><td class="n">0.690</td><td>284 false positives</td></tr>
+      <tr><td>Test precision</td><td class="n">0.072</td><td>low by design — triage, not diagnosis</td></tr>
+      <tr><td>ROC-AUC / PR-AUC</td><td class="n">0.844 / 0.074</td><td>PR-AUC ≈ 3× the 0.024 no-skill rate</td></tr>
+      <tr><td>Brier score</td><td class="n">0.024</td><td>well calibrated</td></tr>
+      <tr><td>Flagged rate</td><td class="n">~33%</td><td>share of adults sent for confirmatory HbA1c</td></tr>
+    </table>
+    <h3>Top odds ratios (standardised inputs)</h3>
+    <p><span class="chip">waist 2.87 ↑</span><span class="chip">age 2.13 ↑</span>
+    <span class="chip">9–11th grade 1.99 ↑</span><span class="chip">Non-Hispanic Black 1.94 ↑</span>
+    <span class="chip">income-to-poverty 0.79 ↓</span><span class="chip">college+ ~0.7 ↓</span></p>
+  </div>
+
+  <h2><span class="num">03</span> Decision log — every choice + one-line defense</h2>
+  <div class="card">
+    <table>
+      <tr><th>Decision</th><th>Why</th></tr>
+      <tr><td>Min age 20, not 18</td><td>education (<span class="mono">DMDEDUC2</span>) isn't collected under 20; the 231 excluded teens had 0 positives</td></tr>
+      <tr><td>Outcome = HbA1c ≥ 6.5% only</td><td>fasting-glucose criterion needs a separate subsample weight; documented under-count, not an oversight</td></tr>
+      <tr><td>PR-AUC / recall / calibration, never accuracy</td><td>2.5% prevalence makes accuracy meaningless</td></tr>
+      <tr><td>Class weights, not SMOTE / undersampling</td><td>keeps the data-generating process intact; composes cleanly with calibration</td></tr>
+      <tr><td>Drop BMI, keep waist circumference</td><td>ρ = 0.89; waist-only matched BMI+waist in CV and keeps coefficients interpretable</td></tr>
+      <tr><td>Logistic regression over tree ensembles</td><td>RF/HistGB collapsed to recall ≈ 0 on 93 positives; LR won PR-AUC/ROC-AUC and yields odds ratios</td></tr>
+      <tr><td><span class="mono">C = 0.1, class_weight="balanced"</span></td><td>grid surface flat within one CV std error → parsimony / one-SE rule</td></tr>
+      <tr><td>Platt scaling (5-fold)</td><td>class weighting distorts probabilities; calibration restores them (Brier 0.024)</td></tr>
+      <tr><td>Threshold on training out-of-fold scores</td><td>the 940-row test set is scored exactly once — no threshold peeking</td></tr>
+      <tr><td>Keep sex in the model despite p = 0.34</td><td>a control variable, not a predictor — lets the other coefficients adjust for it</td></tr>
+    </table>
+  </div>
+
+  <h2><span class="num">04</span> Hard questions &amp; answers</h2>
+  <div class="card">
+    <div class="qa"><p class="q">Precision is 7% — isn't this model useless?</p>
+      <p class="a">It's a first-stage screen; every flag goes to a confirmatory HbA1c anyway. PR-AUC is
+      3× the no-skill rate and the model is calibrated, so I can re-set the threshold to whatever
+      recall/workload the clinic can absorb — without retraining.</p></div>
+    <div class="qa"><p class="q">Only 23 test positives — how much can you trust that recall?</p>
+      <p class="a">You can't, and I say so on the slide. The point estimate is 0.96 but the interval
+      is wide. This is a proof of concept; the next step is external validation on the 2017–March
+      2020 NHANES cycle.</p></div>
+    <div class="qa"><p class="q">Why not XGBoost / a neural net?</p>
+      <p class="a">6 features, 93 positives, a near-linear signal. I tried RF and HistGB — both
+      collapsed to the majority class. Added complexity here is risk, not value, and I'd lose the
+      odds ratios a clinician can sanity-check.</p></div>
+    <div class="qa"><p class="q">Is it ethical to use race/ethnicity and education as features?</p>
+      <p class="a">They act as proxies for social determinants and access to care. The model card
+      flags this for an equity review, and I'd evaluate a body-measurement-only variant as an
+      alternative before anything went near deployment.</p></div>
+    <div class="qa"><p class="q">How would you put this in production?</p>
+      <p class="a"><span class="mono">src.pipeline</span> already produces a versioned, calibrated
+      model artifact + metrics. Add: threshold monitoring, calibration-drift tracking against
+      incoming HbA1c results, a decision-curve analysis to set the threshold on an explicit cost
+      basis, and survey-weighted inference for design-correct intervals.</p></div>
+    <div class="qa"><p class="q">Your weighted prevalence (2.0%) doesn't match CDC's 4.5%. Bug?</p>
+      <p class="a">No — deliberate scope. CDC's undiagnosed-diabetes definition is HbA1c ≥ 6.5%
+      <em>or</em> fasting glucose ≥ 126. I used HbA1c only to avoid the separate fasting-subsample
+      weight. It under-counts true cases, and that's stated in the limitations.</p></div>
+    <div class="qa"><p class="q">Why one train/test split instead of nested CV for the final estimate?</p>
+      <p class="a">Model selection and tuning all happen inside CV on the training set; the held-out
+      set is only for the final unbiased read. With 23 positives, nested CV folds would each have
+      ~4–5 positives — too noisy to be more honest than a single held-out set. I report the CV
+      spread alongside.</p></div>
+  </div>
+
+  <h2><span class="num">05</span> What to show on screen</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Primary — the deck</h3>
+      <p><span class="mono">reports/presentation.html</span> (or the artifact link). Talk through
+      it; don't read it. 14 slides ≈ 10–12 min.</p>
+    </div>
+    <div class="card">
+      <h3>On a deep-dive question</h3>
+      <ul class="tight">
+        <li><span class="mono">notebooks/03_modeling.ipynb</span> — the CV tables, calibration curve, coefficient chart</li>
+        <li><span class="mono">reports/model_card.md</span> — limitations &amp; ethics</li>
+        <li><span class="mono">src/config.py</span> — "every decision lives in one file"</li>
+        <li><span class="mono">tests/test_modeling.py</span> — "the metrics can't silently rot"</li>
+        <li><span class="mono">dashboard/DASHBOARD_SPEC.md</span> — stakeholder communication</li>
+      </ul>
+    </div>
+  </div>
+  <p>Don't run notebooks live — outputs are already saved. If asked "does it reproduce?", show
+  <span class="mono">make all</span> in the README and the passing test count.</p>
+
+  <div class="warn">
+    <h3>Volunteer these before you're asked</h3>
+    <ul class="tight">
+      <li>The recall estimate is fragile — 23 test positives.</li>
+      <li>HbA1c-only outcome under-counts true undiagnosed diabetes.</li>
+      <li>Observational, cross-sectional — associations, not causal effects.</li>
+      <li>Demographic features carry equity risk; a measurement-only variant is worth testing.</li>
+      <li>Survey design isn't folded into the model's standard errors yet.</li>
+    </ul>
+    <p style="margin-bottom:0">Naming your own limitations first reads as seniority, not weakness.</p>
+  </div>
+
+  <h2><span class="num">06</span> If asked "what would you do with two more weeks?"</h2>
+  <ul class="tight">
+    <li>Add the staged BP / smoking / physical-activity modules (<span class="mono">BPXO/BPQ/SMQ/PAQ</span>) as a v2 feature block and measure the lift.</li>
+    <li>External validation on NHANES 2017–March 2020 — the real test of generalisation.</li>
+    <li>Decision-curve analysis: express the threshold as net benefit at a stated cost ratio.</li>
+    <li>Survey-weighted logistic regression (<span class="mono">statsmodels</span>) for design-correct inference.</li>
+    <li>Build the Tableau/Power BI workbook from the spec and put it in front of a non-technical reviewer.</li>
+  </ul>
+
+  <p style="margin-top:28px; font-family:'Libre Franklin',sans-serif; font-weight:600; font-size:1.05rem; color:var(--ink);">
+  Closing line: "It's small and honest — but it's the whole loop: a framed question, defensible
+  decisions, a calibrated model, and a package someone else can run. That's how I'd want a team to work."</p>
+
+  <div class="foot">
+    <span>github.com/melihbed/NHANES-Identifying-Adults-at-Risk-of-Undiagnosed-Diabetes</span>
+    <span>deck: claude.ai/code/artifact/e3c2bb24…</span>
+    <span>print: ⌘P → Save as PDF</span>
+  </div>
+</div>
