@@ -1,0 +1,708 @@
+<title>Undiagnosed Diabetes Screening</title>
+<meta name="description" content="Interview walkthrough: an NHANES screening model that ranks adults by undiagnosed diabetes-range HbA1c risk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --ground: #f4f6f6;
+  --surface: #fdfefe;
+  --surface-2: #eef2f2;
+  --ink: #172226;
+  --ink-muted: #566268;
+  --hairline: #d7dede;
+  --accent: #0a8f88;
+  --accent-deep: #0a5f5b;
+  --risk: #c2410c;
+  --neutral: #94a1a8;
+  --seq-1: #e4efee; --seq-2: #b2d8d4; --seq-3: #66b7ae; --seq-4: #0a8f88; --seq-5: #0a5f5b;
+  --shadow: 0 1px 2px rgba(20,40,44,.04), 0 8px 30px rgba(20,40,44,.06);
+  --maxw: 1080px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0d1415;
+    --surface: #161f20;
+    --surface-2: #1e2829;
+    --ink: #e6ecec;
+    --ink-muted: #93a3a4;
+    --hairline: #2b3838;
+    --accent: #3bb0a8;
+    --accent-deep: #7fd0c9;
+    --risk: #e2683b;
+    --neutral: #7c8b92;
+    --seq-1: #1c3130; --seq-2: #24504c; --seq-3: #2b7871; --seq-4: #3bb0a8; --seq-5: #7fd0c9;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0d1415;
+  --surface: #161f20;
+  --surface-2: #1e2829;
+  --ink: #e6ecec;
+  --ink-muted: #93a3a4;
+  --hairline: #2b3838;
+  --accent: #3bb0a8;
+  --accent-deep: #7fd0c9;
+  --risk: #e2683b;
+  --neutral: #7c8b92;
+  --seq-1: #1c3130; --seq-2: #24504c; --seq-3: #2b7871; --seq-4: #3bb0a8; --seq-5: #7fd0c9;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- deck scaffold ---------- */
+.deck { scroll-snap-type: y mandatory; height: 100vh; overflow-y: scroll; }
+.slide {
+  scroll-snap-align: start;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px max(24px, 6vw) 96px;
+  position: relative;
+  border-bottom: 1px solid var(--hairline);
+}
+.slide-inner { width: 100%; max-width: var(--maxw); margin: 0 auto; }
+
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: var(--accent);
+  display: inline-block;
+}
+h1, h2, h3 {
+  font-family: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.08;
+  text-wrap: balance;
+  margin: 0 0 20px;
+  letter-spacing: -0.015em;
+}
+h1 { font-size: clamp(2.1rem, 5.4vw, 3.9rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 3.6vw, 2.6rem); }
+h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 10px; }
+p { margin: 0 0 16px; max-width: 62ch; }
+.lead { font-size: clamp(1.05rem, 1.9vw, 1.35rem); color: var(--ink-muted); }
+strong { font-weight: 600; color: var(--ink); }
+em { font-style: italic; color: var(--accent-deep); }
+a { color: var(--accent-deep); }
+
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+/* ---------- fixed chrome ---------- */
+.rail {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 4px;
+  background: transparent; z-index: 40;
+}
+.rail-fill { width: 100%; background: var(--accent); height: 0; transition: height .25s ease; }
+.wordmark, .counter, .themebtn {
+  position: fixed; z-index: 40;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.wordmark { left: 22px; bottom: 18px; max-width: 40vw; }
+.counter { right: 22px; bottom: 18px; font-variant-numeric: tabular-nums; }
+.themebtn {
+  right: 20px; top: 18px;
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 999px; padding: 7px 14px; cursor: pointer; color: var(--ink);
+}
+.themebtn:hover { border-color: var(--accent); }
+.nav-hint {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+  z-index: 40; font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  color: var(--ink-muted); letter-spacing: .1em; opacity: .8;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+/* ---------- reusable blocks ---------- */
+.grid { display: grid; gap: 22px; }
+.cols-2 { grid-template-columns: 1fr 1fr; }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 820px) { .cols-2, .cols-3 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+}
+.card h3 { color: var(--accent-deep); }
+
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat .n {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(1.8rem, 4vw, 2.9rem);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat .n.accent { color: var(--accent); }
+.stat .n.risk { color: var(--risk); }
+.stat .k { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+.stat .sub { font-size: .9rem; color: var(--ink-muted); }
+
+ul.clean { list-style: none; padding: 0; margin: 0; }
+ul.clean li { padding: 9px 0 9px 22px; border-bottom: 1px solid var(--hairline); position: relative; max-width: 62ch; }
+ul.clean li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: "IBM Plex Mono", monospace; }
+ul.clean li:last-child { border-bottom: 0; }
+
+table.data { border-collapse: collapse; width: 100%; font-size: .92rem; }
+table.data th, table.data td {
+  text-align: right; padding: 9px 14px; border-bottom: 1px solid var(--hairline);
+  font-variant-numeric: tabular-nums;
+}
+table.data th { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-muted); font-weight: 500; }
+table.data td:first-child, table.data th:first-child { text-align: left; font-family: "Source Serif 4", serif; }
+table.data tr.hi td { background: color-mix(in srgb, var(--accent) 10%, transparent); font-weight: 600; }
+.tag {
+  display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+  letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+  background: var(--surface-2); color: var(--ink-muted); border: 1px solid var(--hairline);
+}
+.tag.up { color: var(--risk); border-color: color-mix(in srgb, var(--risk) 40%, var(--hairline)); }
+.tag.down { color: var(--accent-deep); border-color: color-mix(in srgb, var(--accent) 40%, var(--hairline)); }
+
+.note { font-size: .86rem; color: var(--ink-muted); font-style: italic; margin-top: 14px; }
+.kicker { font-family: "IBM Plex Mono", monospace; font-size: .8rem; color: var(--ink-muted); letter-spacing: .04em; }
+
+/* ---------- charts ---------- */
+.bars { display: flex; flex-direction: column; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: 116px 1fr 54px; align-items: center; gap: 12px; font-size: .85rem; }
+.bar-row .lbl { text-align: right; color: var(--ink-muted); font-size: .82rem; }
+.bar-track { background: var(--surface-2); border-radius: 0 4px 4px 0; height: 22px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); }
+.bar-row .val { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; color: var(--ink); font-size: .82rem; }
+
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.funnel-step { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 13px 18px; background: var(--surface); border: 1px solid var(--hairline); border-left: 3px solid var(--accent); border-radius: 8px; }
+.funnel-step .desc { color: var(--ink-muted); font-size: .92rem; }
+.funnel-step .desc b { color: var(--ink); font-family: "Libre Franklin", sans-serif; }
+.funnel-step .cnt { font-family: "IBM Plex Mono", monospace; font-size: 1.15rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.funnel-step.final { border-left-color: var(--risk); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.funnel-arrow { text-align: center; color: var(--neutral); font-size: .8rem; margin: -2px 0; }
+
+.confusion { display: grid; grid-template-columns: 90px 1fr 1fr; grid-template-rows: 32px 1fr 1fr; gap: 4px; max-width: 460px; }
+.confusion .ch { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-muted); display: flex; align-items: center; justify-content: center; text-align: center; }
+.confusion .cell { border-radius: 8px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 1px solid var(--hairline); }
+.confusion .cell .cn { font-family: "IBM Plex Mono", monospace; font-size: 1.5rem; font-weight: 600; }
+.confusion .cell .cl { font-size: 10px; font-family: "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); }
+.confusion .tp { background: color-mix(in srgb, var(--accent) 20%, var(--surface)); border-color: var(--accent); }
+.confusion .tn { background: color-mix(in srgb, var(--neutral) 14%, var(--surface)); }
+.confusion .fp { background: color-mix(in srgb, var(--risk) 9%, var(--surface)); }
+.confusion .fn { background: color-mix(in srgb, var(--risk) 22%, var(--surface)); border-color: var(--risk); }
+.rlabel { writing-mode: vertical-rl; transform: rotate(180deg); }
+
+.or-chart { display: flex; flex-direction: column; gap: 8px; }
+.or-row { display: grid; grid-template-columns: 150px 1fr 46px; align-items: center; gap: 10px; font-size: .85rem; }
+.or-row .lbl { text-align: right; color: var(--ink-muted); font-size: .8rem; }
+.or-track { position: relative; height: 20px; background: var(--surface-2); border-radius: 4px; }
+.or-mid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--ink-muted); }
+.or-bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.or-bar.up { background: var(--risk); }
+.or-bar.down { background: var(--accent); }
+.or-row .val { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: .8rem; }
+
+.split-bar { display: flex; height: 46px; border-radius: 8px; overflow: hidden; border: 1px solid var(--hairline); font-family: "IBM Plex Mono", monospace; font-size: .8rem; }
+.split-bar .seg { display: flex; align-items: center; justify-content: center; color: #fff; }
+.split-bar .neg { background: var(--neutral); flex-grow: 97.53; }
+.split-bar .pos { background: var(--risk); flex-grow: 2.47; min-width: fit-content; padding: 0 8px; white-space: nowrap; }
+
+/* title slide */
+.title-slide { justify-content: center; }
+.title-slide h1 { max-width: 16ch; margin-bottom: 24px; }
+.title-meta { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 40px; font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.title-meta span { display: flex; align-items: center; gap: 8px; }
+.title-meta span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 12px; }
+.legend span { display: flex; align-items: center; gap: 7px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.big-quote { font-size: clamp(1.3rem, 2.8vw, 2rem); font-family: "Libre Franklin", sans-serif; font-weight: 600; line-height: 1.25; max-width: 20ch; color: var(--ink); text-wrap: balance; }
+</style>
+
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<button class="themebtn" id="themeBtn" aria-label="Toggle colour theme">Theme</button>
+<div class="wordmark">Undiagnosed Diabetes Screening · NHANES 2021–23</div>
+<div class="counter" id="counter">01 / 14</div>
+<div class="nav-hint" id="navHint">↓ scroll · ← → arrows</div>
+
+<main class="deck" id="deck">
+
+  <!-- 01 ---------------------------------------------------------------->
+  <section class="slide title-slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Data Science case walkthrough</p>
+      <h1>Identifying adults at risk of undiagnosed diabetes</h1>
+      <p class="lead">A calibrated screening model that ranks U.S. adults with no prior diabetes
+      diagnosis by their probability of a diabetes-range HbA1c — using only data a clinic already has.</p>
+      <div class="title-meta">
+        <span>NHANES · Aug 2021 – Aug 2023</span>
+        <span>4,698-adult cohort</span>
+        <span>Logistic regression · calibrated</span>
+        <span>Reproducible: <span class="mono">make all</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">02 · The problem</p>
+      <h2>About 1 in 5 people with diabetes don't know they have it</h2>
+      <div class="grid cols-2" style="align-items:center">
+        <div>
+          <p>Undiagnosed diabetes goes untreated for years, and the longer it does, the more
+          irreversible damage it does to eyes, kidneys, nerves and arteries.</p>
+          <p>A cheap, reliable confirmatory test already exists — <strong>HbA1c</strong>. The bottleneck
+          isn't the lab; it's <em>deciding whom to send for it</em>.</p>
+          <p class="kicker">The data-science question: can routinely collected demographics and a
+          tape-measure pre-select the people worth testing?</p>
+        </div>
+        <div class="card">
+          <div class="stat">
+            <span class="k">In this NHANES sample</span>
+            <span class="n risk">116</span>
+            <span class="sub">adults with no diabetes diagnosis whose HbA1c was already in the
+            diabetes range (≥ 6.5%) at the time of the survey</span>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--hairline);margin:18px 0">
+          <div class="stat">
+            <span class="k">Population-weighted rate</span>
+            <span class="n">2.0%</span>
+            <span class="sub">of undiagnosed U.S. adults — CDC's combined HbA1c-or-glucose figure is 4.5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">03 · Question &amp; data</p>
+      <h2>One question, one public dataset</h2>
+      <div class="grid cols-2">
+        <div class="card" style="border-left:3px solid var(--accent)">
+          <h3>Research question</h3>
+          <p style="font-family:'Libre Franklin',sans-serif;font-weight:500;color:var(--ink)">
+          Among U.S. adults who report no previous diabetes diagnosis, can routinely available
+          demographic and body-measurement characteristics identify individuals with a
+          diabetes-range HbA1c measurement?</p>
+        </div>
+        <div>
+          <h3>NHANES modules, linked on the respondent id <span class="mono">SEQN</span></h3>
+          <ul class="clean">
+            <li><span class="mono">DEMO_L</span> — age, sex, race/ethnicity, education, income, survey weights</li>
+            <li><span class="mono">DIQ_L</span> — "ever told you have diabetes?" (the eligibility filter)</li>
+            <li><span class="mono">GHB_L</span> — HbA1c / glycohemoglobin → the outcome</li>
+            <li><span class="mono">BMX_L</span> — BMI, waist circumference</li>
+          </ul>
+          <p class="note">Blood-pressure, smoking and physical-activity modules are downloaded and
+          staged for a v2 feature block.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">04 · Cohort construction</p>
+      <h2>From 11,933 survey participants to a 4,698-adult analytical cohort</h2>
+      <div class="funnel">
+        <div class="funnel-step"><span class="desc"><b>All NHANES 2021–23 participants</b> with linked modules</span><span class="cnt">11,933</span></div>
+        <div class="funnel-arrow">▼ age ≥ 20 &nbsp;<span class="kicker">(20, not 18 — education isn't collected under 20, and the 231 excluded teens had zero positives)</span></div>
+        <div class="funnel-step"><span class="desc">Adults</span><span class="cnt">7,809</span></div>
+        <div class="funnel-arrow">▼ self-reported no prior diabetes diagnosis</div>
+        <div class="funnel-step"><span class="desc">Undiagnosed by definition</span><span class="cnt">6,466</span></div>
+        <div class="funnel-arrow">▼ has a valid HbA1c measurement</div>
+        <div class="funnel-step"><span class="desc">Outcome observable</span><span class="cnt">4,735</span></div>
+        <div class="funnel-arrow">▼ not pregnant at exam</div>
+        <div class="funnel-step final"><span class="desc"><b>Analytical cohort</b> &nbsp;·&nbsp; 116 positive (2.47%)</span><span class="cnt">4,698</span></div>
+      </div>
+      <p class="note">Weighted outcome prevalence 2.0% vs CDC's published 4.5% — expected, because the
+      outcome here is HbA1c ≥ 6.5% only, not CDC's HbA1c-or-fasting-glucose definition. A documented scope choice.</p>
+    </div>
+  </section>
+
+  <!-- 05 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">05 · The core challenge</p>
+      <h2>2.5% positive — so accuracy is a trap</h2>
+      <div class="split-bar" style="margin:8px 0 6px">
+        <div class="seg neg">97.5% &nbsp;below range</div>
+        <div class="seg pos">2.5% diabetes-range</div>
+      </div>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--neutral)"></span>HbA1c &lt; 6.5%</span>
+        <span><span class="swatch" style="background:var(--risk)"></span>HbA1c ≥ 6.5% (undiagnosed)</span>
+      </div>
+      <div class="grid cols-3" style="margin-top:34px">
+        <div class="card"><div class="stat"><span class="k">"Predict everyone negative"</span><span class="n">97.5%</span><span class="sub">accuracy — and clinically useless. Accuracy is banned as a headline metric.</span></div></div>
+        <div class="card"><div class="stat"><span class="k">What we optimise instead</span><span class="n accent" style="font-size:1.4rem;line-height:1.3">PR-AUC<br>Recall<br>Calibration</span></div></div>
+        <div class="card"><div class="stat"><span class="k">Handling the imbalance</span><span class="n accent" style="font-size:1.4rem">Class weights</span><span class="sub">not resampling — keeps the data-generating process intact and composes with calibration</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">06 · Exploratory analysis</p>
+      <h2>Risk climbs with central adiposity, age and disadvantage</h2>
+      <div class="grid cols-2">
+        <div>
+          <h3>Undiagnosed diabetes-range rate, by group</h3>
+          <div class="bars" id="prevBars"></div>
+          <div class="legend"><span><span class="swatch" style="background:var(--seq-2)"></span>lower</span><span><span class="swatch" style="background:var(--seq-5)"></span>higher prevalence</span></div>
+        </div>
+        <div>
+          <ul class="clean">
+            <li>Age, BMI and waist all differ between outcome groups — Mann–Whitney <span class="mono">p &lt; 0.001</span></li>
+            <li>Waist circumference ≥ 110 cm carries a <strong>16×</strong> higher rate than &lt; 90 cm</li>
+            <li>Race/ethnicity and education are significant (χ²) but weak (Cramér's V ≈ 0.08)</li>
+            <li>Sex shows <strong>no</strong> association (<span class="mono">p = 0.34</span>) — dropped as a signal, kept as a control</li>
+            <li>BMI and waist circumference are Spearman <span class="mono">ρ = 0.89</span> — redundant</li>
+          </ul>
+          <p class="note">Descriptive, unweighted, within-sample. Not causal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">07 · Feature decision</p>
+      <h2>Keep waist circumference, drop BMI</h2>
+      <div class="grid cols-2" style="align-items:start">
+        <div>
+          <p>The two adiposity measures are 0.89 correlated. Keeping both makes BMI's adjusted
+          coefficient flip negative — a collinearity artefact that destroys interpretability.</p>
+          <p>Tested all three options under identical 5-fold CV:</p>
+          <table class="data">
+            <tr><th>Feature set</th><th>PR-AUC</th><th>ROC-AUC</th><th>Recall</th></tr>
+            <tr class="hi"><td>Waist only</td><td>0.096</td><td>0.805</td><td>0.730</td></tr>
+            <tr><td>BMI + Waist</td><td>0.092</td><td>0.805</td><td>0.730</td></tr>
+            <tr><td>BMI only</td><td>0.082</td><td>0.777</td><td>0.708</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Final feature set — 6 inputs</h3>
+          <ul class="clean">
+            <li>Age</li>
+            <li>Waist circumference</li>
+            <li>Income-to-poverty ratio</li>
+            <li>Sex <span class="tag">control</span></li>
+            <li>Race / ethnicity</li>
+            <li>Education level</li>
+          </ul>
+          <p class="note">Waist-only matched the combined set on every metric and keeps the odds
+          ratios readable for a clinical audience.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">08 · Model selection</p>
+      <h2>The linear model wins — the tree ensembles surrender to the majority class</h2>
+      <div class="grid cols-2">
+        <div>
+          <h3>Cross-validated PR-AUC (5×5 repeated)</h3>
+          <div class="bars" id="modelBars"></div>
+          <p class="note">No-skill PR-AUC ≈ 0.024 (the prevalence line).</p>
+        </div>
+        <div>
+          <ul class="clean">
+            <li>Random Forest &amp; HistGradientBoosting collapse to recall ≈ 0 — with 93 positives and a near-linear signal they have nothing to exploit</li>
+            <li>Logistic regression leads on PR-AUC, ROC-AUC and recall</li>
+            <li>Bonus: it hands back <strong>odds ratios</strong> a clinician can sanity-check</li>
+            <li>Tuning (grid over C, class weight) — surface flat within one CV standard error, so a parsimony rule sets <span class="mono">C = 0.1, balanced</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">09 · Calibration &amp; operating point</p>
+      <h2>Make the scores mean something, then pick the dial</h2>
+      <div class="grid cols-2" style="align-items:start">
+        <div>
+          <p>Class weighting inflates the raw probabilities. <strong>Platt scaling</strong> (5-fold) pulls
+          them back to observed frequencies — test Brier <span class="mono">0.024</span>.</p>
+          <p>The decision threshold is chosen on <strong>training out-of-fold</strong> scores — the test
+          set is never touched for tuning.</p>
+          <p class="note">Because the scores are calibrated, the threshold is a business dial:
+          re-set it for a different workload without retraining.</p>
+        </div>
+        <div>
+          <h3>Operating points (out-of-fold)</h3>
+          <table class="data">
+            <tr><th>Target recall</th><th>Threshold</th><th>Adults flagged</th><th>Specificity</th></tr>
+            <tr><td>70%</td><td>0.029</td><td>26%</td><td>0.75</td></tr>
+            <tr class="hi"><td>80% — selected</td><td>0.024</td><td>35%</td><td>0.66</td></tr>
+            <tr><td>90%</td><td>0.021</td><td>40%</td><td>0.61</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">10 · Results — held-out test, scored once</p>
+      <h2>22 of 23 undiagnosed cases recovered</h2>
+      <div class="grid cols-2" style="align-items:center">
+        <div>
+          <div class="confusion">
+            <div class="ch"></div><div class="ch">Predicted: not flagged</div><div class="ch">Predicted: flagged</div>
+            <div class="ch"><span class="rlabel">Below range</span></div>
+            <div class="cell tn"><span class="cn">633</span><span class="cl">true negative</span></div>
+            <div class="cell fp"><span class="cn">284</span><span class="cl">false positive</span></div>
+            <div class="ch"><span class="rlabel">Diabetes range</span></div>
+            <div class="cell fn"><span class="cn">1</span><span class="cl">missed</span></div>
+            <div class="cell tp"><span class="cn">22</span><span class="cl">true positive</span></div>
+          </div>
+          <p class="note">940 test adults · 23 positive · threshold 0.024</p>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
+          <div class="card"><div class="stat"><span class="k">Recall</span><span class="n accent">0.96</span></div></div>
+          <div class="card"><div class="stat"><span class="k">Specificity</span><span class="n">0.69</span></div></div>
+          <div class="card"><div class="stat"><span class="k">ROC-AUC</span><span class="n">0.84</span></div></div>
+          <div class="card"><div class="stat"><span class="k">PR-AUC</span><span class="n accent">0.074</span><span class="sub">≈ 3× no-skill</span></div></div>
+        </div>
+      </div>
+      <p style="margin-top:22px"><strong>Read it as a triage filter:</strong> a confirmatory HbA1c for the highest-risk
+      third of adults would have found almost every undiagnosed case here — at ~13 false alarms per true case.</p>
+    </div>
+  </section>
+
+  <!-- 11 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">11 · What the model learned</p>
+      <h2>Direction is clinically sensible</h2>
+      <div class="grid cols-2" style="align-items:center">
+        <div>
+          <h3>Odds ratio vs baseline (standardised inputs)</h3>
+          <div class="or-chart" id="orChart"></div>
+          <div class="legend">
+            <span><span class="swatch" style="background:var(--risk)"></span>raises the odds</span>
+            <span><span class="swatch" style="background:var(--accent)"></span>lowers the odds</span>
+          </div>
+        </div>
+        <div>
+          <ul class="clean">
+            <li>Larger <strong>waist</strong> and older <strong>age</strong> are the dominant risk signals</li>
+            <li>Lower income-to-poverty ratio and less education raise the odds; a college degree lowers them</li>
+            <li>Non-Hispanic Black race/ethnicity carries higher odds — consistent with the descriptive gradients and the literature</li>
+          </ul>
+          <p class="note">Associations in an observational sample, not causal effects. Demographic
+          features act partly as proxies for access to care — a body-measurement-only variant is
+          worth evaluating for equity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">12 · Limitations</p>
+      <h2>What this is not</h2>
+      <div class="grid cols-2">
+        <ul class="clean">
+          <li><strong>Not a diagnosis.</strong> A first-stage screen; every flag needs a confirmatory lab test</li>
+          <li><strong>Outcome under-counts.</strong> HbA1c-only misses fasting-glucose-only undiagnosed cases</li>
+          <li><strong>Small positive class.</strong> 116 total / 23 in test — every minority-class metric has a wide interval</li>
+        </ul>
+        <ul class="clean">
+          <li><strong>Observational &amp; cross-sectional.</strong> No causal claims; not calibrated to any clinical population</li>
+          <li><strong>Survey design</strong> used for the prevalence check, not folded into the model's standard errors</li>
+          <li><strong>Low precision by design</strong> — acceptable for triage, stated plainly rather than hidden</li>
+        </ul>
+      </div>
+      <p class="big-quote" style="margin-top:30px">A proof of concept with an honest error bar — not a device.</p>
+    </div>
+  </section>
+
+  <!-- 13 ---------------------------------------------------------------->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">13 · Engineering</p>
+      <h2>Built to be re-run, not just re-read</h2>
+      <div class="grid cols-3">
+        <div class="card"><div class="stat"><span class="k">One command</span><span class="n accent" style="font-size:1.5rem"><span class="mono">make all</span></span><span class="sub">data → train → dashboard → tests, offline, from committed raw files</span></div></div>
+        <div class="card"><div class="stat"><span class="k">Packaged &amp; tested</span><span class="n">11</span><span class="sub">pytest checks on cohort invariants and pipeline behaviour; notebooks are a thin narrative over <span class="mono">src/</span></span></div></div>
+        <div class="card"><div class="stat"><span class="k">Handoff-ready</span><span class="n accent" style="font-size:1.5rem">BI extracts</span><span class="sub">star-schema CSVs + a page-by-page Tableau / Power BI build spec</span></div></div>
+      </div>
+      <p class="note">Config-driven cohort &amp; model spec · leakage-safe pipelines · calibrated, versioned model artifact + model card.</p>
+    </div>
+  </section>
+
+  <!-- 14 ---------------------------------------------------------------->
+  <section class="slide title-slide">
+    <div class="slide-inner">
+      <p class="eyebrow">14 · Next</p>
+      <h1 style="font-size:clamp(1.8rem,4.4vw,3rem);max-width:20ch">Where this goes with another two weeks</h1>
+      <ul class="clean" style="font-size:1.05rem">
+        <li>Add the staged blood-pressure, smoking &amp; physical-activity modules as a v2 feature block</li>
+        <li>External validation on the 2017–March 2020 NHANES cycle</li>
+        <li>Decision-curve analysis to put the operating threshold on an explicit cost basis</li>
+        <li>Survey-weighted logistic regression for design-correct inference</li>
+      </ul>
+      <div class="title-meta">
+        <span>Melih Bedirhan Çalış</span>
+        <span>github.com/melihbed/NHANES-Identifying-Adults-at-Risk-of-Undiagnosed-Diabetes</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var deck = document.getElementById("deck");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var counter = document.getElementById("counter");
+  var railFill = document.getElementById("railFill");
+  var navHint = document.getElementById("navHint");
+  var total = slides.length;
+
+  function current() {
+    var i = Math.round(deck.scrollTop / window.innerHeight);
+    return Math.max(0, Math.min(total - 1, i));
+  }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function update() {
+    var i = current();
+    counter.textContent = pad(i + 1) + " / " + pad(total);
+    railFill.style.height = ((i) / (total - 1) * 100) + "%";
+  }
+  function go(dir) {
+    var i = current() + dir;
+    if (i < 0 || i >= total) return;
+    slides[i].scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  deck.addEventListener("scroll", function () {
+    window.requestAnimationFrame(update);
+    if (deck.scrollTop > 40 && navHint) { navHint.style.opacity = "0"; }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(1); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+    else if (e.key === "Home") { slides[0].scrollIntoView({ behavior: "smooth" }); }
+    else if (e.key === "End") { slides[total - 1].scrollIntoView({ behavior: "smooth" }); }
+  });
+
+  // theme toggle
+  var root = document.documentElement;
+  var tb = document.getElementById("themeBtn");
+  tb.addEventListener("click", function () {
+    var now = root.getAttribute("data-theme");
+    var mqlDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = now ? (now === "dark" ? "light" : "dark") : (mqlDark ? "light" : "dark");
+    root.setAttribute("data-theme", next);
+    tb.textContent = next === "dark" ? "Light" : "Dark";
+  });
+
+  // ---- charts ----
+  function barChart(el, rows, max) {
+    if (!el) return;
+    el.innerHTML = rows.map(function (r) {
+      var pct = (r.v / max * 100).toFixed(1);
+      var col = r.color || "var(--accent)";
+      return '<div class="bar-row"><span class="lbl">' + r.k + '</span>' +
+        '<span class="bar-track"><span class="bar-fill" style="width:' + pct + '%;background:' + col + '"></span></span>' +
+        '<span class="val">' + r.d + '</span></div>';
+    }).join("");
+  }
+
+  var seq = ["var(--seq-2)", "var(--seq-3)", "var(--seq-4)", "var(--seq-5)"];
+  barChart(document.getElementById("prevBars"), [
+    { k: "Waist < 90 cm", v: 0.36, d: "0.4%", color: seq[0] },
+    { k: "Waist 100–109", v: 3.19, d: "3.2%", color: seq[2] },
+    { k: "Waist ≥ 110 cm", v: 5.76, d: "5.8%", color: seq[3] },
+    { k: "BMI ≥ 35", v: 5.42, d: "5.4%", color: seq[3] },
+    { k: "No high-school", v: 6.19, d: "6.2%", color: seq[3] },
+    { k: "Age 65+", v: 3.58, d: "3.6%", color: seq[2] },
+    { k: "Age 20–34", v: 0.51, d: "0.5%", color: seq[0] }
+  ], 6.5);
+
+  barChart(document.getElementById("modelBars"), [
+    { k: "Logistic Reg.", v: 0.094, d: "0.094", color: "var(--accent)" },
+    { k: "Hist GBoosting", v: 0.076, d: "0.076", color: "var(--neutral)" },
+    { k: "Random Forest", v: 0.067, d: "0.067", color: "var(--neutral)" }
+  ], 0.11);
+
+  // odds-ratio chart (log scale around 1.0)
+  var orData = [
+    { k: "Waist circumference", or: 2.87, up: true },
+    { k: "Age", or: 2.13, up: true },
+    { k: "Education: 9–11th grade", or: 1.99, up: true },
+    { k: "Non-Hispanic Black", or: 1.94, up: true },
+    { k: "Income-to-poverty ratio", or: 0.79, up: false },
+    { k: "Some college / AA", or: 0.69, up: false },
+    { k: "Non-Hispanic White", or: 0.37, up: false }
+  ];
+  var orEl = document.getElementById("orChart");
+  if (orEl) {
+    var lo = Math.log(0.33), hi = Math.log(3.0), span = hi - lo;
+    var midPct = (-lo / span * 100);
+    orEl.innerHTML = orData.map(function (d) {
+      var x = (Math.log(d.or) - lo) / span * 100;
+      var left = Math.min(x, midPct), width = Math.abs(x - midPct);
+      return '<div class="or-row"><span class="lbl">' + d.k + '</span>' +
+        '<span class="or-track"><span class="or-mid" style="left:' + midPct + '%"></span>' +
+        '<span class="or-bar ' + (d.up ? "up" : "down") + '" style="left:' + left + '%;width:' + width + '%"></span></span>' +
+        '<span class="val">' + d.or.toFixed(2) + '</span></div>';
+    }).join("");
+  }
+
+  update();
+})();
+</script>

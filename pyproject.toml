@@ -1,0 +1,17 @@
+[project]
+name = "undiagnosed-diabetes-screening"
+version = "0.1.0"
+description = "Screening model for diabetes-range HbA1c among adults with no prior diabetes diagnosis (NHANES 2021-2023)"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    "ignore::sklearn.exceptions.UndefinedMetricWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
