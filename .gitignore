@@ -1,0 +1,11 @@
+.venv/
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.virtual_documents/
+
+# regenerable derived data + model binary (rebuild: python -m src.pipeline)
+artifacts/*.csv
+models/*.joblib
+models/*.pkl

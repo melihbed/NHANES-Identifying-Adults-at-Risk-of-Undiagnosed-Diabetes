@@ -1,0 +1,18 @@
+# Core analysis stack. Tested on Python 3.11 (see .python-version / README).
+# Pinned to compatible ranges; requirements-lock.txt has the exact resolved versions.
+numpy>=2.0,<3.0
+pandas>=2.2,<4.0
+scipy>=1.13,<2.0
+scikit-learn>=1.5,<2.0
+joblib>=1.3,<2.0
+
+matplotlib>=3.8,<4.0
+seaborn>=0.13,<0.14
+
+# notebook execution
+jupyterlab>=4.2,<5.0
+ipykernel>=6.29
+nbconvert>=7.10
+
+# tests
+pytest>=8.0,<10.0
