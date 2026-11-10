@@ -1,5 +1,7 @@
 # Identifying Adults at Risk of Undiagnosed Diabetes
 
+[![tests](https://github.com/melihbed/NHANES-Identifying-Adults-at-Risk-of-Undiagnosed-Diabetes/actions/workflows/tests.yml/badge.svg)](https://github.com/melihbed/NHANES-Identifying-Adults-at-Risk-of-Undiagnosed-Diabetes/actions/workflows/tests.yml)
+
 A screening model that ranks U.S. adults **with no prior diabetes diagnosis** by their
 probability of having a **diabetes-range HbA1c (≥ 6.5 %)**, using only inputs that are
 routinely available at a primary-care visit.
